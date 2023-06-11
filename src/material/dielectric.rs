@@ -28,13 +28,13 @@ impl Material for Dielectric {
         if let Some(refracted) = refract(ray.direction, outward_normal, ni_over_nt) {
             let refract_prob = schlick(cosine, self.ref_idx);
             if rng.gen::<f32>() >= refract_prob {
-                let scattered = Ray::new(hit.point, refracted);
+                let scattered = Ray::new(hit.point, refracted, ray.time);
                 return Some((scattered, attenuation));
             }
         }
 
         let reflected = reflect(ray.direction, hit.normal);
-        let scattered = Ray::new(hit.point, reflected);
+        let scattered = Ray::new(hit.point, reflected, ray.time);
         Some((scattered, attenuation))
     }
 }

@@ -84,6 +84,7 @@ pub fn draw<W: Write>(
         aspect_ratio,
         aperture,
         focus_dist,
+        (0., 1.),
     );
 
     // Render

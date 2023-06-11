@@ -2,7 +2,7 @@ use glam::Vec3A;
 use rand::{distributions::Uniform, Rng};
 
 use crate::{
-    hittable::{hittable_list::HittableList, sphere::Sphere},
+    hittable::{hittable_list::HittableList, moving_sphere::MovingSphere, sphere::Sphere},
     material::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal},
     vec::random_vec,
     Rand,
@@ -34,7 +34,14 @@ pub fn random_scene(rng: &mut Rand) -> HittableList {
                         let b = random_vec(rng, Uniform::new(0., 1.));
                         Vec3A::new(a.x * b.x, a.y * b.y, a.z * b.z)
                     };
-                    world.push(Sphere::new(center, 0.2, Lambertian::new(albedo)));
+                    let center2 = center + Vec3A::new(0., rng.gen_range(0.0..0.5), 0.);
+                    world.push(MovingSphere::new(
+                        (center, center2),
+                        (0., 1.),
+                        0.2,
+                        Lambertian::new(albedo),
+                    ));
+                    // world.push(Sphere::new(center, 0.2, Lambertian::new(albedo)));
                 } else if choose_mat < 0.95 {
                     let albedo = random_vec(rng, Uniform::new(0.5, 1.));
                     let fuzzy = rng.gen_range(0.0..=0.5);

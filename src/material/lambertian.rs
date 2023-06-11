@@ -13,9 +13,9 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, _: &Ray, hit: &HitRecord, rng: &mut Rand) -> Option<(Ray, Vec3A)> {
+    fn scatter(&self, ray: &Ray, hit: &HitRecord, rng: &mut Rand) -> Option<(Ray, Vec3A)> {
         let target = hit.point + hit.normal + random_in_unit_sphere(rng);
-        let scatterd = Ray::new(hit.point, target - hit.point);
+        let scatterd = Ray::new(hit.point, target - hit.point, ray.time);
 
         Some((scatterd, self.albedo))
     }

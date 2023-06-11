@@ -1,5 +1,5 @@
 use super::{random_in_unit_sphere, reflect, Material};
-use crate::{ray::Ray, Rand};
+use crate::{hittable::HitRecord, ray::Ray, Rand};
 use glam::Vec3A;
 
 pub struct Metal {
@@ -19,8 +19,8 @@ impl Metal {
 impl Material for Metal {
     fn scatter(
         &self,
-        ray: &crate::ray::Ray,
-        hit: &crate::hittable::HitRecord,
+        ray: &Ray,
+        hit: &HitRecord,
         rng: &mut Rand,
     ) -> Option<(crate::ray::Ray, Vec3A)> {
         let reflected = reflect(ray.direction.normalize(), hit.normal);
@@ -28,6 +28,7 @@ impl Material for Metal {
             let scatterd = Ray::new(
                 hit.point,
                 reflected + self.fuzzy * random_in_unit_sphere(rng),
+                ray.time,
             );
             Some((scatterd, self.albedo))
         } else {
