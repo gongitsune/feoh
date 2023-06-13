@@ -1,4 +1,5 @@
 use super::{HitRecord, Hittable};
+use crate::hittable::aabb::AABB;
 use crate::ray::Ray;
 
 #[derive(Default)]
@@ -25,5 +26,21 @@ impl Hittable for HittableList {
         }
 
         hit_anything
+    }
+
+    fn bounding_box(&self, time: (f32, f32)) -> Option<AABB> {
+        let mut output_box = None;
+        for obj in self.objects.iter() {
+            if let Some(bounding_box) = obj.bounding_box(time) {
+                output_box = Some(match output_box {
+                    Some(output_box) => AABB::surrounding_box(&output_box, &bounding_box),
+                    None => bounding_box,
+                });
+            } else {
+                return None;
+            }
+        }
+
+        output_box
     }
 }

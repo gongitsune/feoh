@@ -1,8 +1,7 @@
-use glam::Vec3A;
-
-use crate::material::Material;
-
 use super::{HitRecord, Hittable};
+use crate::hittable::aabb::AABB;
+use crate::material::Material;
+use glam::Vec3A;
 
 pub struct MovingSphere<M: Material> {
     pub center: (Vec3A, Vec3A),
@@ -66,5 +65,12 @@ impl<M: Material + Sync> Hittable for MovingSphere<M> {
         }
 
         None
+    }
+
+    fn bounding_box(&self, time: (f32, f32)) -> Option<AABB> {
+        let radius = Vec3A::splat(self.radius);
+        let box1 = AABB::new(self.center(time.0) - radius, self.center(time.0) + radius);
+        let box2 = AABB::new(self.center(time.1) - radius, self.center(time.1) + radius);
+        Some(AABB::surrounding_box(&box1, &box2))
     }
 }

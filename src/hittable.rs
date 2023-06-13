@@ -1,10 +1,11 @@
+pub mod aabb;
+pub mod bvh;
 pub mod hittable_list;
 pub mod moving_sphere;
 pub mod sphere;
 
+use crate::{hittable::aabb::AABB, material::Material, ray::Ray};
 use glam::Vec3A;
-
-use crate::{material::Material, ray::Ray};
 
 pub struct HitRecord<'a> {
     pub point: Vec3A,
@@ -15,4 +16,5 @@ pub struct HitRecord<'a> {
 
 pub trait Hittable: Sync {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
+    fn bounding_box(&self, time: (f32, f32)) -> Option<AABB>;
 }

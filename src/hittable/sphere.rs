@@ -1,5 +1,5 @@
 use super::{HitRecord, Hittable};
-use crate::{material::Material, ray::Ray};
+use crate::{hittable::aabb::AABB, material::Material, ray::Ray};
 use glam::Vec3A;
 
 pub struct Sphere<M: Material> {
@@ -55,5 +55,10 @@ impl<M: Material + Sync> Hittable for Sphere<M> {
         }
 
         None
+    }
+
+    fn bounding_box(&self, time: (f32, f32)) -> Option<AABB> {
+        let radius = Vec3A::splat(self.radius);
+        Some(AABB::new(self.center - radius, self.center + radius))
     }
 }
