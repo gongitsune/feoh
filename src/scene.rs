@@ -1,6 +1,7 @@
 use crate::{
     hittable::{hittable_list::HittableList, moving_sphere::MovingSphere, sphere::Sphere},
     material::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal},
+    texture::checker_texture::CheckerTexture,
     vec::random_vec,
     Rand,
 };
@@ -10,7 +11,8 @@ use rand::{distributions::Uniform, Rng};
 pub fn random_scene(rng: &mut Rand) -> HittableList {
     let mut world = HittableList::default();
 
-    let ground_mat = Lambertian::new(Vec3A::splat(0.5));
+    let checker_tex = CheckerTexture::from((Vec3A::new(0.2, 0.3, 0.1), Vec3A::splat(0.9)));
+    let ground_mat = Lambertian::new(checker_tex);
     world.push(Sphere::new(
         Vec3A::new(0.0, -1000.0, 0.0),
         1000.0,
@@ -38,7 +40,7 @@ pub fn random_scene(rng: &mut Rand) -> HittableList {
                         (center, center2),
                         (0., 1.),
                         0.2,
-                        Lambertian::new(albedo),
+                        Lambertian::from(albedo),
                     ));
                     // world.push(Sphere::new(center, 0.2, Lambertian::new(albedo)));
                 } else if choose_mat < 0.95 {
@@ -55,7 +57,7 @@ pub fn random_scene(rng: &mut Rand) -> HittableList {
     let mat1 = Dielectric::new(1.5);
     world.push(Sphere::new(Vec3A::new(0.0, 1.0, 0.0), 1.0, mat1));
 
-    let mat2 = Lambertian::new(Vec3A::new(0.4, 0.2, 0.1));
+    let mat2 = Lambertian::from(Vec3A::new(0.4, 0.2, 0.1));
     world.push(Sphere::new(Vec3A::new(-4.0, 1.0, 0.0), 1.0, mat2));
 
     let mat3 = Metal::new(Vec3A::new(0.7, 0.6, 0.5), 0.0);

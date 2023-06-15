@@ -17,6 +17,7 @@ mod hittable;
 mod material;
 mod ray;
 mod scene;
+mod texture;
 mod vec;
 
 pub type Rand = SmallRng;

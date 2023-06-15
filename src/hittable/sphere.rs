@@ -1,11 +1,19 @@
 use super::{HitRecord, Hittable};
 use crate::{hittable::aabb::AABB, material::Material, ray::Ray};
 use glam::Vec3A;
+use std::f32::consts::PI;
 
 pub struct Sphere<M: Material> {
     center: Vec3A,
     radius: f32,
     material: M,
+}
+
+fn get_sphere_uv(p: &Vec3A) -> (f32, f32) {
+    let theta = -p.y.acos();
+    let phi = -p.z.atan2(p.x) + PI;
+
+    (phi / (2. * PI), theta / PI)
 }
 
 impl<M: Material> Sphere<M> {
@@ -30,14 +38,16 @@ impl<M: Material + Sync> Hittable for Sphere<M> {
         if discriminant > 0. {
             let sqrt_discriminant = discriminant.sqrt();
             let t = (-b - sqrt_discriminant) / a;
-
             if t_min < t && t < t_max {
                 let point = ray.at(t);
                 let normal = (point - self.center) / self.radius;
+                let (u, v) = get_sphere_uv(&normal);
                 return Some(HitRecord {
                     point,
                     normal,
                     t,
+                    u,
+                    v,
                     material: &self.material,
                 });
             }
@@ -45,10 +55,13 @@ impl<M: Material + Sync> Hittable for Sphere<M> {
             if t_min < t && t < t_max {
                 let point = ray.at(t);
                 let normal = (point - self.center) / self.radius;
+                let (u, v) = get_sphere_uv(&normal);
                 return Some(HitRecord {
                     point,
                     normal,
                     t,
+                    u,
+                    v,
                     material: &self.material,
                 });
             }

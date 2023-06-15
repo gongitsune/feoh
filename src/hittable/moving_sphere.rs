@@ -2,12 +2,20 @@ use super::{HitRecord, Hittable};
 use crate::hittable::aabb::AABB;
 use crate::material::Material;
 use glam::Vec3A;
+use std::f32::consts::PI;
 
 pub struct MovingSphere<M: Material> {
     pub center: (Vec3A, Vec3A),
     pub time: (f32, f32),
     pub radius: f32,
     pub material: M,
+}
+
+fn get_sphere_uv(p: &Vec3A) -> (f32, f32) {
+    let theta = -p.y.acos();
+    let phi = -p.z.atan2(p.x) + PI;
+
+    (phi / (2. * PI), theta / PI)
 }
 
 impl<M: Material + Sync> MovingSphere<M> {
@@ -43,10 +51,13 @@ impl<M: Material + Sync> Hittable for MovingSphere<M> {
             if t_min < t && t < t_max {
                 let point = ray.at(t);
                 let normal = (point - center) / self.radius;
+                let (u, v) = get_sphere_uv(&normal);
                 return Some(HitRecord {
                     point,
                     normal,
                     t,
+                    u,
+                    v,
                     material: &self.material,
                 });
             }
@@ -55,10 +66,13 @@ impl<M: Material + Sync> Hittable for MovingSphere<M> {
             if t_min < t && t < t_max {
                 let point = ray.at(t);
                 let normal = (point - center) / self.radius;
+                let (u, v) = get_sphere_uv(&normal);
                 return Some(HitRecord {
                     point,
                     normal,
                     t,
+                    u,
+                    v,
                     material: &self.material,
                 });
             }
