@@ -33,17 +33,17 @@ fn ray_color<H: Hittable>(
     }
 
     if let Some(hit) = world.hit(ray, 0.001, INFINITY) {
+        let emitted = hit.material.color_emitted(hit.u, hit.v, &hit.point);
         if let Some((scattered, attenuation)) = hit.material.scatter(ray, &hit, rng) {
-            return {
-                let a = ray_color(&scattered, background, world, depth - 1, rng);
-                Vec3A::new(
-                    attenuation.x * a.x,
-                    attenuation.y * a.y,
-                    attenuation.z * a.z,
-                )
-            };
+            let a = ray_color(&scattered, background, world, depth - 1, rng);
+            Vec3A::new(
+                emitted.x + attenuation.x * a.x,
+                emitted.y + attenuation.y * a.y,
+                emitted.z + attenuation.z * a.z,
+            )
+        } else {
+            emitted
         }
-        Vec3A::ZERO
     } else {
         *background
     }

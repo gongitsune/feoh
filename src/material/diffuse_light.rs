@@ -1,11 +1,15 @@
-use glam::Vec3A;
-
-use crate::{hittable::HitRecord, ray::Ray, texture::Texture, Rand};
-
 use super::Material;
+use crate::{hittable::HitRecord, ray::Ray, texture::Texture, Rand};
+use glam::Vec3A;
 
 pub struct DiffuseLight<T: Texture> {
     pub emit: T,
+}
+
+impl<T: Texture> DiffuseLight<T> {
+    pub fn new(emit: T) -> Self {
+        Self { emit }
+    }
 }
 
 impl<T: Texture> Material for DiffuseLight<T> {

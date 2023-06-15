@@ -3,6 +3,7 @@ pub mod bvh;
 pub mod hittable_list;
 pub mod moving_sphere;
 pub mod sphere;
+pub mod xy_rect;
 
 use crate::{hittable::aabb::AABB, material::Material, ray::Ray};
 use glam::Vec3A;
