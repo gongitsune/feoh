@@ -1,5 +1,4 @@
-use crate::camera::Camera;
-use crate::scene::random_scene;
+use crate::{camera::Camera, scene::random_scene};
 use anyhow::Result;
 use glam::Vec3A;
 use hittable::{bvh::BvhTree, Hittable};
@@ -22,7 +21,13 @@ mod vec;
 
 pub type Rand = SmallRng;
 
-fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: usize, rng: &mut Rand) -> Vec3A {
+fn ray_color<H: Hittable>(
+    ray: &Ray,
+    background: &Vec3A,
+    world: &H,
+    depth: usize,
+    rng: &mut Rand,
+) -> Vec3A {
     if depth <= 0 {
         return Vec3A::ZERO;
     }
@@ -30,7 +35,7 @@ fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: usize, rng: &mut Rand) ->
     if let Some(hit) = world.hit(ray, 0.001, INFINITY) {
         if let Some((scattered, attenuation)) = hit.material.scatter(ray, &hit, rng) {
             return {
-                let a = ray_color(&scattered, world, depth - 1, rng);
+                let a = ray_color(&scattered, background, world, depth - 1, rng);
                 Vec3A::new(
                     attenuation.x * a.x,
                     attenuation.y * a.y,
@@ -38,12 +43,10 @@ fn ray_color<H: Hittable>(ray: &Ray, world: &H, depth: usize, rng: &mut Rand) ->
                 )
             };
         }
-        return Vec3A::ZERO;
+        Vec3A::ZERO
+    } else {
+        *background
     }
-
-    let unit_dir = ray.direction.normalize();
-    let t = 0.5 * (unit_dir.y + 1.0);
-    (1.0 - t) * Vec3A::splat(1.) + t * Vec3A::new(0.5, 0.7, 1.0)
 }
 
 pub fn draw<W: Write>(
@@ -73,6 +76,7 @@ pub fn draw<W: Write>(
     let mut rng = SmallRng::from_entropy();
     let mut world = random_scene(&mut rng);
     let world = BvhTree::new(&mut world.objects, (0., 1.), &mut rng);
+    let background = Vec3A::new(0.7, 0.8, 1.);
 
     // Camera
     let look_from = Vec3A::new(13.0, 2.0, 3.0);
@@ -111,7 +115,7 @@ pub fn draw<W: Write>(
                             let v = (y as f32 + rng.gen::<f32>()) / (img_height - 1) as f32;
 
                             let ray = camera.get_ray(u, v, &mut rng);
-                            ray_color(&ray, &world, max_depth, &mut rng)
+                            ray_color(&ray, &background, &world, max_depth, &mut rng)
                         })
                         .sum::<Vec3A>()
                         .to_array()

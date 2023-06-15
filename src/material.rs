@@ -1,4 +1,5 @@
 pub mod dielectric;
+pub mod diffuse_light;
 pub mod lambertian;
 pub mod metal;
 
@@ -9,6 +10,9 @@ use crate::{hittable::HitRecord, ray::Ray, vec::random_vec, Rand};
 
 pub trait Material {
     fn scatter(&self, ray: &Ray, hit: &HitRecord, rng: &mut Rand) -> Option<(Ray, Vec3A)>;
+    fn color_emitted(&self, _u: f32, _v: f32, _p: &Vec3A) -> Vec3A {
+        Vec3A::ZERO
+    }
 }
 
 fn random_in_unit_sphere(rng: &mut Rand) -> Vec3A {
