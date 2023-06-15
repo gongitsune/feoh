@@ -57,7 +57,7 @@ impl<M: Material + Sync> Hittable for Sphere<M> {
         None
     }
 
-    fn bounding_box(&self, time: (f32, f32)) -> Option<AABB> {
+    fn bounding_box(&self, _: (f32, f32)) -> Option<AABB> {
         let radius = Vec3A::splat(self.radius);
         Some(AABB::new(self.center - radius, self.center + radius))
     }

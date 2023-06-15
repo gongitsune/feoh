@@ -1,12 +1,11 @@
-use glam::Vec3A;
-use rand::{distributions::Uniform, Rng};
-
 use crate::{
     hittable::{hittable_list::HittableList, moving_sphere::MovingSphere, sphere::Sphere},
     material::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal},
     vec::random_vec,
     Rand,
 };
+use glam::Vec3A;
+use rand::{distributions::Uniform, Rng};
 
 pub fn random_scene(rng: &mut Rand) -> HittableList {
     let mut world = HittableList::default();

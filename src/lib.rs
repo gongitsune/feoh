@@ -2,7 +2,7 @@ use crate::camera::Camera;
 use crate::scene::random_scene;
 use anyhow::Result;
 use glam::Vec3A;
-use hittable::Hittable;
+use hittable::{bvh::BvhTree, Hittable};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use rand::{rngs::SmallRng, Rng, SeedableRng};
 use ray::Ray;
@@ -69,7 +69,9 @@ pub fn draw<W: Write>(
     );
 
     // World
-    let world = random_scene(&mut SmallRng::from_entropy());
+    let mut rng = SmallRng::from_entropy();
+    let mut world = random_scene(&mut rng);
+    let world = BvhTree::new(&mut world.objects, (0., 1.), &mut rng);
 
     // Camera
     let look_from = Vec3A::new(13.0, 2.0, 3.0);

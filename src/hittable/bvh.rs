@@ -188,9 +188,9 @@ impl<'a> fmt::Display for BvhTree<'a> {
 }
 
 fn box_x_compare(a: &Box<dyn Hittable>, b: &Box<dyn Hittable>) -> Ordering {
-    const time: (f32, f32) = (0., 0.);
-    if let Some(box_left) = a.bounding_box(time) {
-        if let Some(box_right) = b.bounding_box(time) {
+    const TIME: (f32, f32) = (0., 0.);
+    if let Some(box_left) = a.bounding_box(TIME) {
+        if let Some(box_right) = b.bounding_box(TIME) {
             if let Some(cmp) = box_left.min.x.partial_cmp(&box_right.min.x) {
                 return cmp;
             } else {
@@ -203,9 +203,9 @@ fn box_x_compare(a: &Box<dyn Hittable>, b: &Box<dyn Hittable>) -> Ordering {
 }
 
 fn box_y_compare(a: &Box<dyn Hittable>, b: &Box<dyn Hittable>) -> Ordering {
-    const time: (f32, f32) = (0., 0.);
-    if let Some(box_left) = a.bounding_box(time) {
-        if let Some(box_right) = b.bounding_box(time) {
+    const TIME: (f32, f32) = (0., 0.);
+    if let Some(box_left) = a.bounding_box(TIME) {
+        if let Some(box_right) = b.bounding_box(TIME) {
             if let Some(cmp) = box_left.min.y.partial_cmp(&box_right.min.y) {
                 return cmp;
             } else {
@@ -218,9 +218,9 @@ fn box_y_compare(a: &Box<dyn Hittable>, b: &Box<dyn Hittable>) -> Ordering {
 }
 
 fn box_z_compare(a: &Box<dyn Hittable>, b: &Box<dyn Hittable>) -> Ordering {
-    const time: (f32, f32) = (0., 0.);
-    if let Some(box_left) = a.bounding_box(time) {
-        if let Some(box_right) = b.bounding_box(time) {
+    const TIME: (f32, f32) = (0., 0.);
+    if let Some(box_left) = a.bounding_box(TIME) {
+        if let Some(box_right) = b.bounding_box(TIME) {
             if let Some(cmp) = box_left.min.z.partial_cmp(&box_right.min.z) {
                 return cmp;
             } else {
