@@ -1,4 +1,5 @@
 pub mod aabb;
+pub mod boxtype;
 pub mod bvh;
 pub mod hittable_list;
 pub mod moving_sphere;

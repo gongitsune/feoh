@@ -1,5 +1,6 @@
 use crate::{
     hittable::{
+        boxtype::BoxType,
         hittable_list::HittableList,
         moving_sphere::MovingSphere,
         rect::{AARect, Plane},
@@ -104,7 +105,22 @@ pub fn cornell_box() -> HittableList {
         555.,
         white.clone(),
     ));
-    world.push(AARect::new(Plane::XY, (0., 555.), (0., 555.), 555., white));
+    world.push(AARect::new(
+        Plane::XY,
+        (0., 555.),
+        (0., 555.),
+        555.,
+        white.clone(),
+    ));
+
+    world.push(BoxType::new(
+        (Vec3A::new(130., 0., 65.), Vec3A::new(295., 165., 230.)),
+        white.clone(),
+    ));
+    world.push(BoxType::new(
+        (Vec3A::new(265., 0., 295.), Vec3A::new(430., 330., 460.)),
+        white,
+    ));
 
     world
 }

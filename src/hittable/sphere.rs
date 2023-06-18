@@ -58,7 +58,7 @@ impl<M: Material + Sync> Hittable for Sphere<M> {
                 let (u, v) = get_sphere_uv(&normal);
                 return Some(HitRecord {
                     point,
-                    normal,
+                    normal: get_face_normal(ray, normal),
                     t,
                     u,
                     v,

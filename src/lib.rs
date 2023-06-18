@@ -1,4 +1,4 @@
-use crate::{camera::Camera, scene::random_scene};
+use crate::camera::Camera;
 use anyhow::Result;
 use glam::Vec3A;
 use hittable::{bvh::BvhTree, Hittable};
