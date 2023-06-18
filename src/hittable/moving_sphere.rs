@@ -19,6 +19,7 @@ fn get_sphere_uv(p: &Vec3A) -> (f32, f32) {
 }
 
 impl<M: Material + Sync> MovingSphere<M> {
+    #[allow(dead_code)]
     pub fn new(center: (Vec3A, Vec3A), time: (f32, f32), radius: f32, material: M) -> Self {
         Self {
             center,

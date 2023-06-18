@@ -13,6 +13,7 @@ pub struct DiffuseLight<T: Texture> {
 }
 
 impl<T: Texture> DiffuseLight<T> {
+    #[allow(dead_code)]
     pub fn new(emit: T) -> Self {
         Self { emit }
     }

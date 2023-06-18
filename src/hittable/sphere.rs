@@ -17,6 +17,7 @@ fn get_sphere_uv(p: &Vec3A) -> (f32, f32) {
 }
 
 impl<M: Material> Sphere<M> {
+    #[allow(dead_code)]
     pub fn new(center: Vec3A, radius: f32, material: M) -> Self {
         Self {
             center,

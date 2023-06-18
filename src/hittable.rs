@@ -4,7 +4,9 @@ pub mod bvh;
 pub mod hittable_list;
 pub mod moving_sphere;
 pub mod rect;
+pub mod rotate;
 pub mod sphere;
+pub mod translate;
 
 use crate::{hittable::aabb::AABB, material::Material, ray::Ray};
 use glam::Vec3A;

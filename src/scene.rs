@@ -4,7 +4,9 @@ use crate::{
         hittable_list::HittableList,
         moving_sphere::MovingSphere,
         rect::{AARect, Plane},
+        rotate::{Axis, Rotate},
         sphere::Sphere,
+        translate::Translate,
     },
     material::{
         dielectric::Dielectric, diffuse_light::DiffuseLight, lambertian::Lambertian, metal::Metal,
@@ -16,6 +18,7 @@ use crate::{
 use glam::Vec3A;
 use rand::{distributions::Uniform, Rng};
 
+#[allow(dead_code)]
 pub fn random_scene(rng: &mut Rand) -> HittableList {
     let mut world = HittableList::default();
 
@@ -113,14 +116,20 @@ pub fn cornell_box() -> HittableList {
         white.clone(),
     ));
 
-    world.push(BoxType::new(
-        (Vec3A::new(130., 0., 65.), Vec3A::new(295., 165., 230.)),
-        white.clone(),
-    ));
-    world.push(BoxType::new(
-        (Vec3A::new(265., 0., 295.), Vec3A::new(430., 330., 460.)),
-        white,
-    ));
+    world.push({
+        let instance = BoxType::new((Vec3A::ZERO, Vec3A::new(165., 330., 165.)), white.clone());
+        let instance = Rotate::new(Axis::Y, instance, 15.);
+        let instance = Translate::new(instance, Vec3A::new(265., 0., 295.));
+
+        instance
+    });
+    world.push({
+        let instance = BoxType::new((Vec3A::ZERO, Vec3A::new(165., 165., 165.)), white);
+        let instance = Rotate::new(Axis::Y, instance, -18.);
+        let instance = Translate::new(instance, Vec3A::new(130., 0., 65.));
+
+        instance
+    });
 
     world
 }
