@@ -2,6 +2,7 @@ use glam::Vec3A;
 
 use super::{solid_color::SolidColor, Texture};
 
+#[derive(Clone)]
 pub struct CheckerTexture<Odd: Texture, Even: Texture> {
     pub odd: Odd,
     pub even: Even,

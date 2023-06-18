@@ -3,6 +3,7 @@ use crate::{hittable::HitRecord, ray::Ray, Rand};
 use glam::Vec3A;
 use rand::Rng;
 
+#[derive(Clone)]
 pub struct Dielectric {
     ref_idx: f32,
 }

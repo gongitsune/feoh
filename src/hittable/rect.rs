@@ -2,11 +2,11 @@ use glam::Vec3A;
 
 use crate::{material::Material, ray::Ray};
 
-use super::{aabb::AABB, HitRecord, Hittable};
+use super::{aabb::AABB, get_face_normal, HitRecord, Hittable};
 
 pub enum Plane {
     YZ,
-    ZX,
+    XZ,
     XY,
 }
 
@@ -34,7 +34,7 @@ impl<M: Material + Sync> Hittable for AARect<M> {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let (k_axis, a_axis, b_axis) = match &self.plane {
             Plane::YZ => (0, 1, 2),
-            Plane::ZX => (1, 2, 0),
+            Plane::XZ => (1, 0, 2),
             Plane::XY => (2, 0, 1),
         };
         let t = (self.k - ray.origin[k_axis]) / ray.direction[k_axis];
@@ -56,7 +56,7 @@ impl<M: Material + Sync> Hittable for AARect<M> {
                     u,
                     v,
                     point,
-                    normal,
+                    normal: get_face_normal(ray, normal),
                     material: &self.material,
                 })
             }
@@ -64,8 +64,15 @@ impl<M: Material + Sync> Hittable for AARect<M> {
     }
 
     fn bounding_box(&self, _: (f32, f32)) -> Option<AABB> {
-        let min = Vec3A::new(self.a.0, self.b.0, self.k - 0.0001);
-        let max = Vec3A::new(self.a.1, self.b.1, self.k + 0.0001);
-        Some(AABB { min, max })
+        let k = (self.k - 0.0001, self.k + 0.0001);
+        let plane = match &self.plane {
+            Plane::YZ => (k, self.a, self.b),
+            Plane::XZ => (self.a, k, self.b),
+            Plane::XY => (self.a, self.b, k),
+        };
+        Some(AABB {
+            min: Vec3A::new(plane.0 .0, plane.1 .0, plane.2 .0),
+            max: Vec3A::new(plane.0 .1, plane.1 .1, plane.2 .1),
+        })
     }
 }

@@ -10,7 +10,7 @@ use crate::{hittable::HitRecord, ray::Ray, vec::random_vec, Rand};
 
 pub trait Material {
     fn scatter(&self, ray: &Ray, hit: &HitRecord, rng: &mut Rand) -> Option<(Ray, Vec3A)>;
-    fn color_emitted(&self, _u: f32, _v: f32, _p: &Vec3A) -> Vec3A {
+    fn emitted(&self, _u: f32, _v: f32, _p: &Vec3A) -> Vec3A {
         Vec3A::ZERO
     }
 }

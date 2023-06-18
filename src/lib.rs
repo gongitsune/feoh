@@ -6,6 +6,7 @@ use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use rand::{rngs::SmallRng, Rng, SeedableRng};
 use ray::Ray;
 use rayon::prelude::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
+use scene::cornell_box;
 use std::{
     f32::INFINITY,
     io::{BufWriter, Write},
@@ -33,13 +34,13 @@ fn ray_color<H: Hittable>(
     }
 
     if let Some(hit) = world.hit(ray, 0.001, INFINITY) {
-        let emitted = hit.material.color_emitted(hit.u, hit.v, &hit.point);
+        let emitted = hit.material.emitted(hit.u, hit.v, &hit.point);
         if let Some((scattered, attenuation)) = hit.material.scatter(ray, &hit, rng) {
-            let a = ray_color(&scattered, background, world, depth - 1, rng);
+            let color = ray_color(&scattered, background, world, depth - 1, rng);
             Vec3A::new(
-                emitted.x + attenuation.x * a.x,
-                emitted.y + attenuation.y * a.y,
-                emitted.z + attenuation.z * a.z,
+                emitted.x + attenuation.x * color.x,
+                emitted.y + attenuation.y * color.y,
+                emitted.z + attenuation.z * color.z,
             )
         } else {
             emitted
@@ -74,20 +75,20 @@ pub fn draw<W: Write>(
 
     // World
     let mut rng = SmallRng::from_entropy();
-    let mut world = random_scene(&mut rng);
+    let mut world = cornell_box();
     let world = BvhTree::new(&mut world.objects, (0., 1.), &mut rng);
-    let background = Vec3A::new(0.7, 0.8, 1.);
+    let background = Vec3A::ZERO;
 
     // Camera
-    let look_from = Vec3A::new(13.0, 2.0, 3.0);
-    let look_at = Vec3A::new(0.0, 0.0, 0.0);
+    let look_from = Vec3A::new(278., 278., -800.);
+    let look_at = Vec3A::new(278., 278., 0.);
     let focus_dist = (look_from - look_at).length();
-    let aperture = 0.1;
+    let aperture = 0.;
     let camera = Camera::new(
         look_from,
         look_at,
         Vec3A::new(0.0, 1.0, 0.0),
-        20.0,
+        40.0,
         aspect_ratio,
         aperture,
         focus_dist,

@@ -1,6 +1,7 @@
 use super::Texture;
 use glam::Vec3A;
 
+#[derive(Clone)]
 pub struct SolidColor {
     color: Vec3A,
 }

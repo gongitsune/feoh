@@ -1,6 +1,13 @@
 use crate::{
-    hittable::{hittable_list::HittableList, moving_sphere::MovingSphere, sphere::Sphere},
-    material::{dielectric::Dielectric, lambertian::Lambertian, metal::Metal},
+    hittable::{
+        hittable_list::HittableList,
+        moving_sphere::MovingSphere,
+        rect::{AARect, Plane},
+        sphere::Sphere,
+    },
+    material::{
+        dielectric::Dielectric, diffuse_light::DiffuseLight, lambertian::Lambertian, metal::Metal,
+    },
     texture::checker_texture::CheckerTexture,
     vec::random_vec,
     Rand,
@@ -62,6 +69,42 @@ pub fn random_scene(rng: &mut Rand) -> HittableList {
 
     let mat3 = Metal::new(Vec3A::new(0.7, 0.6, 0.5), 0.0);
     world.push(Sphere::new(Vec3A::new(4.0, 1.0, 0.0), 1.0, mat3));
+
+    world
+}
+
+pub fn cornell_box() -> HittableList {
+    let mut world = HittableList::default();
+
+    let red = Lambertian::from(Vec3A::new(0.65, 0.05, 0.05));
+    let white = Lambertian::from(Vec3A::new(0.73, 0.73, 0.73));
+    let green = Lambertian::from(Vec3A::new(0.12, 0.45, 0.15));
+    let light = DiffuseLight::from(Vec3A::new(15., 15., 15.));
+
+    world.push(AARect::new(Plane::YZ, (0., 555.), (0., 555.), 555., green));
+    world.push(AARect::new(Plane::YZ, (0., 555.), (0., 555.), 0., red));
+    world.push(AARect::new(
+        Plane::XZ,
+        (213., 343.),
+        (227., 332.),
+        554.,
+        light,
+    ));
+    world.push(AARect::new(
+        Plane::XZ,
+        (0., 555.),
+        (0., 555.),
+        0.,
+        white.clone(),
+    ));
+    world.push(AARect::new(
+        Plane::XZ,
+        (0., 555.),
+        (0., 555.),
+        555.,
+        white.clone(),
+    ));
+    world.push(AARect::new(Plane::XY, (0., 555.), (0., 555.), 555., white));
 
     world
 }
