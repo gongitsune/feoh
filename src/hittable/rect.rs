@@ -1,8 +1,7 @@
-use glam::Vec3A;
-
-use crate::{material::Material, ray::Ray};
-
 use super::{aabb::AABB, get_face_normal, HitRecord, Hittable};
+use crate::{material::Material, ray::Ray};
+use glam::Vec3A;
+use std::sync::Arc;
 
 pub enum Plane {
     YZ,
@@ -10,16 +9,16 @@ pub enum Plane {
     XY,
 }
 
-pub struct AARect<M: Material + Sync> {
+pub struct AARect<M: Material> {
     plane: Plane,
     a: (f32, f32),
     b: (f32, f32),
     k: f32,
-    material: M,
+    material: Arc<M>,
 }
 
-impl<M: Material + Sync> AARect<M> {
-    pub fn new(plane: Plane, a: (f32, f32), b: (f32, f32), k: f32, material: M) -> Self {
+impl<M: Material> AARect<M> {
+    pub fn new(plane: Plane, a: (f32, f32), b: (f32, f32), k: f32, material: Arc<M>) -> Self {
         AARect {
             plane,
             a,
@@ -30,7 +29,7 @@ impl<M: Material + Sync> AARect<M> {
     }
 }
 
-impl<M: Material + Sync> Hittable for AARect<M> {
+impl<M: Material> Hittable for AARect<M> {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let (k_axis, a_axis, b_axis) = match &self.plane {
             Plane::YZ => (0, 1, 2),
@@ -57,7 +56,7 @@ impl<M: Material + Sync> Hittable for AARect<M> {
                     v,
                     point,
                     normal: get_face_normal(ray, normal),
-                    material: &self.material,
+                    material: self.material.as_ref(),
                 })
             }
         }

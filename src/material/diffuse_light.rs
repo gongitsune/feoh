@@ -7,7 +7,6 @@ use crate::{
 };
 use glam::Vec3A;
 
-#[derive(Clone)]
 pub struct DiffuseLight<T: Texture> {
     pub emit: T,
 }

@@ -1,12 +1,12 @@
 use super::{get_face_normal, HitRecord, Hittable};
 use crate::{hittable::aabb::AABB, material::Material, ray::Ray};
 use glam::Vec3A;
-use std::f32::consts::PI;
+use std::{f32::consts::PI, sync::Arc};
 
 pub struct Sphere<M: Material> {
     center: Vec3A,
     radius: f32,
-    material: M,
+    material: Arc<M>,
 }
 
 fn get_sphere_uv(p: &Vec3A) -> (f32, f32) {
@@ -18,7 +18,7 @@ fn get_sphere_uv(p: &Vec3A) -> (f32, f32) {
 
 impl<M: Material> Sphere<M> {
     #[allow(dead_code)]
-    pub fn new(center: Vec3A, radius: f32, material: M) -> Self {
+    pub fn new(center: Vec3A, radius: f32, material: Arc<M>) -> Self {
         Self {
             center,
             radius,
@@ -27,7 +27,7 @@ impl<M: Material> Sphere<M> {
     }
 }
 
-impl<M: Material + Sync> Hittable for Sphere<M> {
+impl<M: Material> Hittable for Sphere<M> {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let oc = ray.origin - self.center;
         let a = ray.direction.dot(ray.direction);
@@ -49,7 +49,7 @@ impl<M: Material + Sync> Hittable for Sphere<M> {
                     t,
                     u,
                     v,
-                    material: &self.material,
+                    material: self.material.as_ref(),
                 });
             }
             let t = (-b + sqrt_discriminant) / a;
@@ -63,7 +63,7 @@ impl<M: Material + Sync> Hittable for Sphere<M> {
                     t,
                     u,
                     v,
-                    material: &self.material,
+                    material: self.material.as_ref(),
                 });
             }
         }

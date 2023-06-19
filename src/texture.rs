@@ -3,6 +3,6 @@ pub mod solid_color;
 
 use glam::Vec3A;
 
-pub trait Texture: Sync + Clone {
+pub trait Texture: Sync + Send {
     fn value(&self, u: f32, v: f32, p: &Vec3A) -> Vec3A;
 }

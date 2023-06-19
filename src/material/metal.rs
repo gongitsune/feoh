@@ -2,7 +2,6 @@ use super::{random_in_unit_sphere, reflect, Material};
 use crate::{hittable::HitRecord, ray::Ray, Rand};
 use glam::Vec3A;
 
-#[derive(Clone)]
 pub struct Metal {
     albedo: Vec3A,
     fuzzy: f32,

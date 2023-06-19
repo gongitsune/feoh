@@ -1,22 +1,24 @@
+use std::sync::Arc;
+
 use glam::Vec3A;
 
 use crate::ray::Ray;
 
 use super::{get_face_normal, Hittable};
 
-pub struct Translate<H: Hittable> {
-    pub hittable: H,
+pub struct Translate<H: Hittable + Send> {
+    pub hittable: Arc<H>,
     pub offset: Vec3A,
 }
 
-impl<H: Hittable> Translate<H> {
+impl<H: Hittable + Send> Translate<H> {
     #[allow(dead_code)]
-    pub fn new(hittable: H, offset: Vec3A) -> Self {
+    pub fn new(hittable: Arc<H>, offset: Vec3A) -> Self {
         Self { hittable, offset }
     }
 }
 
-impl<H: Hittable> Hittable for Translate<H> {
+impl<H: Hittable + Send> Hittable for Translate<H> {
     fn hit(&self, ray: &crate::ray::Ray, t_min: f32, t_max: f32) -> Option<super::HitRecord> {
         let moved_ray = Ray::new(ray.origin - self.offset, ray.direction, ray.time);
         if let Some(mut hit) = self.hittable.hit(&moved_ray, t_min, t_max) {

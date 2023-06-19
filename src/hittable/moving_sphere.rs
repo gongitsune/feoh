@@ -2,13 +2,13 @@ use super::{HitRecord, Hittable};
 use crate::hittable::aabb::AABB;
 use crate::material::Material;
 use glam::Vec3A;
-use std::f32::consts::PI;
+use std::{f32::consts::PI, sync::Arc};
 
 pub struct MovingSphere<M: Material> {
     pub center: (Vec3A, Vec3A),
     pub time: (f32, f32),
     pub radius: f32,
-    pub material: M,
+    pub material: Arc<M>,
 }
 
 fn get_sphere_uv(p: &Vec3A) -> (f32, f32) {
@@ -18,9 +18,9 @@ fn get_sphere_uv(p: &Vec3A) -> (f32, f32) {
     (phi / (2. * PI), theta / PI)
 }
 
-impl<M: Material + Sync> MovingSphere<M> {
+impl<M: Material> MovingSphere<M> {
     #[allow(dead_code)]
-    pub fn new(center: (Vec3A, Vec3A), time: (f32, f32), radius: f32, material: M) -> Self {
+    pub fn new(center: (Vec3A, Vec3A), time: (f32, f32), radius: f32, material: Arc<M>) -> Self {
         Self {
             center,
             time,
@@ -35,7 +35,7 @@ impl<M: Material + Sync> MovingSphere<M> {
     }
 }
 
-impl<M: Material + Sync> Hittable for MovingSphere<M> {
+impl<M: Material> Hittable for MovingSphere<M> {
     fn hit(&self, ray: &crate::ray::Ray, t_min: f32, t_max: f32) -> Option<super::HitRecord> {
         let center = self.center(ray.time);
         let oc = ray.origin - center;
@@ -59,7 +59,7 @@ impl<M: Material + Sync> Hittable for MovingSphere<M> {
                     t,
                     u,
                     v,
-                    material: &self.material,
+                    material: self.material.as_ref(),
                 });
             }
 
@@ -74,7 +74,7 @@ impl<M: Material + Sync> Hittable for MovingSphere<M> {
                     t,
                     u,
                     v,
-                    material: &self.material,
+                    material: self.material.as_ref(),
                 });
             }
         }

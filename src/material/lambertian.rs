@@ -7,7 +7,6 @@ use crate::{
 };
 use glam::Vec3A;
 
-#[derive(Clone)]
 pub struct Lambertian<T: Texture> {
     albedo: T,
 }

@@ -1,7 +1,7 @@
 use super::{aabb::AABB, HitRecord, Hittable};
 use crate::ray::Ray;
 use glam::Vec3A;
-use std::f32::consts::PI;
+use std::{f32::consts::PI, sync::Arc};
 
 #[allow(dead_code)]
 pub enum Axis {
@@ -18,17 +18,17 @@ fn get_axis(axis: &Axis) -> (usize, usize, usize) {
     }
 }
 
-pub struct Rotate<H: Hittable> {
+pub struct Rotate<H: Hittable + Sync + Send> {
     axis: Axis,
     sin_theta: f32,
     cos_theta: f32,
-    hittable: H,
+    hittable: Arc<H>,
     bbox: Option<AABB>,
 }
 
-impl<H: Hittable> Rotate<H> {
+impl<H: Hittable + Send + Sync> Rotate<H> {
     #[allow(dead_code)]
-    pub fn new(axis: Axis, hittable: H, angle: f32) -> Self {
+    pub fn new(axis: Axis, hittable: Arc<H>, angle: f32) -> Self {
         let (r_axis, a_axis, b_axis) = get_axis(&axis);
         let radians = (PI / 180.0) * angle;
         let sin_theta = f32::sin(radians);
@@ -81,7 +81,7 @@ impl<H: Hittable> Rotate<H> {
     }
 }
 
-impl<H: Hittable> Hittable for Rotate<H> {
+impl<H: Hittable + Sync + Send> Hittable for Rotate<H> {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let (_, a_axis, b_axis) = get_axis(&self.axis);
         let mut origin = ray.origin;

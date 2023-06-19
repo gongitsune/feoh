@@ -1,10 +1,12 @@
-use crate::material::Material;
+use std::sync::Arc;
+
+use crate::{material::Material, ray::Ray};
 
 use super::{
     aabb::AABB,
     hittable_list::HittableList,
     rect::{AARect, Plane},
-    Hittable,
+    HitRecord, Hittable,
 };
 use glam::Vec3A;
 
@@ -15,7 +17,7 @@ pub struct BoxType {
 }
 
 impl BoxType {
-    pub fn new<M: Material + Clone + Sync + 'static>(point: (Vec3A, Vec3A), material: M) -> Self {
+    pub fn new<M: Material + 'static>(point: (Vec3A, Vec3A), material: Arc<M>) -> Self {
         let mut sides = HittableList::default();
         sides.push(AARect::new(
             Plane::XY,
@@ -71,11 +73,11 @@ impl BoxType {
 }
 
 impl Hittable for BoxType {
-    fn hit(&self, ray: &crate::ray::Ray, t_min: f32, t_max: f32) -> Option<super::HitRecord> {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         self.sides.hit(ray, t_min, t_max)
     }
 
-    fn bounding_box(&self, _: (f32, f32)) -> Option<super::aabb::AABB> {
+    fn bounding_box(&self, _: (f32, f32)) -> Option<AABB> {
         Some(AABB::new(self.min, self.max))
     }
 }
