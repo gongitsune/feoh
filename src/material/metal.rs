@@ -17,12 +17,7 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(
-        &self,
-        ray: &Ray,
-        hit: &HitRecord,
-        rng: &mut Rand,
-    ) -> Option<(crate::ray::Ray, Vec3A)> {
+    fn scatter(&self, ray: &Ray, hit: &HitRecord, rng: &mut Rand) -> Option<(Ray, Vec3A, f32)> {
         let reflected = reflect(ray.direction.normalize(), hit.normal);
         if reflected.dot(hit.normal) > 0. {
             let scatterd = Ray::new(
@@ -30,7 +25,7 @@ impl Material for Metal {
                 reflected + self.fuzzy * random_in_unit_sphere(rng),
                 ray.time,
             );
-            Some((scatterd, self.albedo))
+            Some((scatterd, self.albedo, 0.))
         } else {
             None
         }

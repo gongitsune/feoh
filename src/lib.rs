@@ -15,6 +15,7 @@ use std::{
 mod camera;
 mod hittable;
 mod material;
+pub mod onb;
 mod ray;
 mod scene;
 mod texture;
@@ -35,12 +36,13 @@ fn ray_color<H: Hittable>(
 
     if let Some(hit) = world.hit(ray, 0.001, INFINITY) {
         let emitted = hit.material.emitted(hit.u, hit.v, &hit.point);
-        if let Some((scattered, attenuation)) = hit.material.scatter(ray, &hit, rng) {
+        if let Some((scattered, albedo, pdf)) = hit.material.scatter(ray, &hit, rng) {
             let color = ray_color(&scattered, background, world, depth - 1, rng);
+            let scatterd_pdf = hit.material.scattering_pdf(ray, &hit, &scattered);
             Vec3A::new(
-                emitted.x + attenuation.x * color.x,
-                emitted.y + attenuation.y * color.y,
-                emitted.z + attenuation.z * color.z,
+                emitted.x + albedo.x * scatterd_pdf * color.x / pdf,
+                emitted.y + albedo.y * scatterd_pdf * color.y / pdf,
+                emitted.z + albedo.z * scatterd_pdf * color.z / pdf,
             )
         } else {
             emitted

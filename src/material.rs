@@ -9,7 +9,10 @@ use rand::distributions::Uniform;
 use crate::{hittable::HitRecord, ray::Ray, vec::random_vec, Rand};
 
 pub trait Material: Sync + Send {
-    fn scatter(&self, ray: &Ray, hit: &HitRecord, rng: &mut Rand) -> Option<(Ray, Vec3A)>;
+    fn scatter(&self, ray: &Ray, hit: &HitRecord, rng: &mut Rand) -> Option<(Ray, Vec3A, f32)>;
+    fn scattering_pdf(&self, _ray: &Ray, _hit: &HitRecord, _scatterd: &Ray) -> f32 {
+        0.
+    }
     fn emitted(&self, _u: f32, _v: f32, _p: &Vec3A) -> Vec3A {
         Vec3A::ZERO
     }

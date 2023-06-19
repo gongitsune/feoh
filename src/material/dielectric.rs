@@ -16,7 +16,7 @@ impl Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, ray: &Ray, hit: &HitRecord, rng: &mut Rand) -> Option<(Ray, Vec3A)> {
+    fn scatter(&self, ray: &Ray, hit: &HitRecord, rng: &mut Rand) -> Option<(Ray, Vec3A, f32)> {
         let attenuation = Vec3A::new(1.0, 1.0, 1.0);
         let (outward_normal, ni_over_nt, cosine) = if ray.direction.dot(hit.normal) > 0. {
             let cosine = self.ref_idx * ray.direction.dot(hit.normal) / ray.direction.length();
@@ -29,12 +29,12 @@ impl Material for Dielectric {
             let refract_prob = schlick(cosine, self.ref_idx);
             if rng.gen::<f32>() >= refract_prob {
                 let scattered = Ray::new(hit.point, refracted, ray.time);
-                return Some((scattered, attenuation));
+                return Some((scattered, attenuation, 0.));
             }
         }
 
         let reflected = reflect(ray.direction, hit.normal);
         let scattered = Ray::new(hit.point, reflected, ray.time);
-        Some((scattered, attenuation))
+        Some((scattered, attenuation, 0.))
     }
 }

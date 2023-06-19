@@ -27,7 +27,7 @@ impl From<Vec3A> for DiffuseLight<SolidColor> {
 }
 
 impl<T: Texture> Material for DiffuseLight<T> {
-    fn scatter(&self, _: &Ray, _: &HitRecord, _: &mut Rand) -> Option<(Ray, Vec3A)> {
+    fn scatter(&self, _: &Ray, _: &HitRecord, _: &mut Rand) -> Option<(Ray, Vec3A, f32)> {
         None
     }
 
