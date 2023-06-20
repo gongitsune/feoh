@@ -90,9 +90,9 @@ pub fn cornell_box() -> HittableList {
 
     world.push(AARect::new(Plane::YZ, (0., 555.), (0., 555.), 555., green));
     world.push(AARect::new(Plane::YZ, (0., 555.), (0., 555.), 0., red));
-    world.push(FlipFace::new(
-        AARect::new(Plane::XZ, (213., 343.), (227., 332.), 554., light).into(),
-    ));
+
+    let light_rect = AARect::new(Plane::XZ, (213., 343.), (227., 332.), 554., light).into();
+    world.push(FlipFace::new(light_rect));
     world.push(AARect::new(
         Plane::XZ,
         (0., 555.),

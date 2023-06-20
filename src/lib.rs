@@ -2,22 +2,29 @@
 use crate::camera::Camera;
 use anyhow::Result;
 use glam::Vec3A;
-use hittable::{bvh::BvhTree, Hittable};
+use hittable::{
+    bvh::BvhTree,
+    rect::{AARect, Plane},
+    Hittable,
+};
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
+use material::diffuse_light::DiffuseLight;
+use pdf::{HittablePdf, Pdf};
 use rand::{rngs::SmallRng, Rng, SeedableRng};
 use ray::Ray;
 use rayon::prelude::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
 use scene::cornell_box;
 use std::{
     f32::INFINITY,
-    intrinsics::fabsf32,
     io::{BufWriter, Write},
+    sync::Arc,
 };
 
 mod camera;
 mod hittable;
 mod material;
 pub mod onb;
+pub mod pdf;
 mod ray;
 mod scene;
 mod texture;
@@ -25,10 +32,11 @@ mod vec;
 
 pub type Rand = SmallRng;
 
-fn ray_color<H: Hittable>(
+fn ray_color<TWorld: Hittable, TLight: Hittable>(
     ray: &Ray,
     background: &Vec3A,
-    world: &H,
+    world: &TWorld,
+    lights: Arc<TLight>,
     depth: usize,
     rng: &mut Rand,
 ) -> Vec3A {
@@ -39,27 +47,10 @@ fn ray_color<H: Hittable>(
     if let Some(hit) = world.hit(ray, 0.001, INFINITY) {
         let emitted = hit.material.emitted(ray, &hit);
         if let Some((_, albedo, _)) = hit.material.scatter(ray, &hit, rng) {
-            let on_light = Vec3A::new(
-                rng.gen_range(213.0..343.0),
-                554.,
-                rng.gen_range(227.0..332.0),
-            );
-            let to_light = on_light - hit.point;
-            let distance_squared = to_light.length_squared();
-            let to_light = to_light.normalize();
-            if to_light.dot(hit.normal) < 0. {
-                return emitted;
-            }
-
-            let light_area = (343. - 213.) * (332. - 227.);
-            let light_cosine = unsafe { fabsf32(to_light.y) };
-            if light_cosine < 0.000001 {
-                return emitted;
-            }
-
-            let pdf = distance_squared / (light_cosine * light_area);
-            let scattered = Ray::new(hit.point, to_light, ray.time);
-            let color = ray_color(&scattered, background, world, depth - 1, rng);
+            let light_pdf = HittablePdf::new(hit.point, lights.clone());
+            let scattered = Ray::new(hit.point, light_pdf.generate(rng), ray.time);
+            let color = ray_color(&scattered, background, world, lights, depth - 1, rng);
+            let pdf = light_pdf.value(scattered.direction);
             let scatterd_pdf = hit.material.scattering_pdf(ray, &hit, &scattered);
 
             emitted
@@ -102,6 +93,9 @@ pub fn draw<W: Write>(
     // World
     let mut rng = SmallRng::from_entropy();
     let mut world = cornell_box();
+
+    let light = Arc::new(DiffuseLight::from(Vec3A::new(15., 15., 15.)));
+    let lights: Arc<_> = AARect::new(Plane::XZ, (213., 343.), (227., 332.), 554., light).into();
     let world = BvhTree::new(&mut world.objects, (0., 1.), &mut rng);
     let background = Vec3A::ZERO;
 
@@ -142,7 +136,14 @@ pub fn draw<W: Write>(
                             let v = (y as f32 + rng.gen::<f32>()) / (img_height - 1) as f32;
 
                             let ray = camera.get_ray(u, v, &mut rng);
-                            ray_color(&ray, &background, &world, max_depth, &mut rng)
+                            ray_color(
+                                &ray,
+                                &background,
+                                &world,
+                                lights.clone(),
+                                max_depth,
+                                &mut rng,
+                            )
                         })
                         .sum::<Vec3A>()
                         .to_array()

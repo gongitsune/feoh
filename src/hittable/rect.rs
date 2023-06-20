@@ -1,7 +1,8 @@
 use super::{aabb::AABB, get_face_normal, HitRecord, Hittable};
-use crate::{material::Material, ray::Ray};
+use crate::{material::Material, ray::Ray, Rand};
 use glam::Vec3A;
-use std::sync::Arc;
+use rand::Rng;
+use std::{f32::INFINITY, intrinsics::fabsf32, sync::Arc};
 
 pub enum Plane {
     YZ,
@@ -75,5 +76,26 @@ impl<M: Material> Hittable for AARect<M> {
             min: Vec3A::new(plane.0 .0, plane.1 .0, plane.2 .0),
             max: Vec3A::new(plane.0 .1, plane.1 .1, plane.2 .1),
         })
+    }
+
+    fn pdf_value(&self, origin: Vec3A, v: Vec3A) -> f32 {
+        if let Some(hit) = self.hit(&Ray::new(origin, v, 0.), 0.001, INFINITY) {
+            let area = (self.a.1 - self.a.0) * (self.b.1 - self.b.0);
+            let distance_squared = hit.t * hit.t * v.length_squared();
+            let cosine = unsafe { fabsf32(v.dot(hit.normal) / v.length()) };
+
+            distance_squared / (cosine * area)
+        } else {
+            0.
+        }
+    }
+
+    fn random(&self, origin: Vec3A, rng: &mut Rand) -> Vec3A {
+        let random_point = Vec3A::new(
+            rng.gen_range(self.a.0..self.a.1),
+            self.k,
+            rng.gen_range(self.b.0..self.b.1),
+        );
+        random_point - origin
     }
 }
