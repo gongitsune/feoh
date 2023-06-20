@@ -9,7 +9,7 @@ use hittable::{
 };
 use indicatif::{MultiProgress, ProgressBar, ProgressStyle};
 use material::diffuse_light::DiffuseLight;
-use pdf::{HittablePdf, Pdf};
+use pdf::{CosinePdf, HittablePdf, MixturePdf, Pdf};
 use rand::{rngs::SmallRng, Rng, SeedableRng};
 use ray::Ray;
 use rayon::prelude::{IndexedParallelIterator, IntoParallelIterator, ParallelIterator};
@@ -32,7 +32,7 @@ mod vec;
 
 pub type Rand = SmallRng;
 
-fn ray_color<TWorld: Hittable, TLight: Hittable>(
+fn ray_color<TWorld: Hittable, TLight: Hittable + 'static>(
     ray: &Ray,
     background: &Vec3A,
     world: &TWorld,
@@ -47,10 +47,13 @@ fn ray_color<TWorld: Hittable, TLight: Hittable>(
     if let Some(hit) = world.hit(ray, 0.001, INFINITY) {
         let emitted = hit.material.emitted(ray, &hit);
         if let Some((_, albedo, _)) = hit.material.scatter(ray, &hit, rng) {
-            let light_pdf = HittablePdf::new(hit.point, lights.clone());
-            let scattered = Ray::new(hit.point, light_pdf.generate(rng), ray.time);
+            let p0: Arc<_> = HittablePdf::new(hit.point, lights.clone()).into();
+            let p1: Arc<_> = CosinePdf::new(&hit.normal).into();
+            let mixed_pdf = MixturePdf::new((p0, p1));
+
+            let scattered = Ray::new(hit.point, mixed_pdf.generate(rng), ray.time);
             let color = ray_color(&scattered, background, world, lights, depth - 1, rng);
-            let pdf = light_pdf.value(scattered.direction);
+            let pdf = mixed_pdf.value(scattered.direction);
             let scatterd_pdf = hit.material.scattering_pdf(ray, &hit, &scattered);
 
             emitted

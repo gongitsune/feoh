@@ -1,5 +1,6 @@
 use crate::{hittable::Hittable, onb::Onb, vec::random_cosine_direction, Rand};
 use glam::Vec3A;
+use rand::Rng;
 use std::{f32::consts::PI, sync::Arc};
 
 pub trait Pdf {
@@ -52,5 +53,29 @@ impl<H: Hittable> Pdf for HittablePdf<H> {
 
     fn generate(&self, rng: &mut Rand) -> Vec3A {
         self.hittable.random(self.origin, rng)
+    }
+}
+
+pub struct MixturePdf {
+    pub pdf: (Arc<dyn Pdf>, Arc<dyn Pdf>),
+}
+
+impl MixturePdf {
+    pub fn new(pdf: (Arc<dyn Pdf>, Arc<dyn Pdf>)) -> Self {
+        Self { pdf }
+    }
+}
+
+impl Pdf for MixturePdf {
+    fn value(&self, direction: Vec3A) -> f32 {
+        0.5 * self.pdf.0.value(direction) + 0.5 * self.pdf.1.value(direction)
+    }
+
+    fn generate(&self, rng: &mut Rand) -> Vec3A {
+        if rng.gen::<f32>() < 0.5 {
+            self.pdf.0.generate(rng)
+        } else {
+            self.pdf.1.generate(rng)
+        }
     }
 }
