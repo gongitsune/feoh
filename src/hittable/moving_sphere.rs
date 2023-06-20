@@ -1,4 +1,4 @@
-use super::{HitRecord, Hittable};
+use super::{get_face_normal, HitRecord, Hittable};
 use crate::hittable::aabb::AABB;
 use crate::material::Material;
 use glam::Vec3A;
@@ -53,6 +53,7 @@ impl<M: Material> Hittable for MovingSphere<M> {
                 let point = ray.at(t);
                 let normal = (point - center) / self.radius;
                 let (u, v) = get_sphere_uv(&normal);
+                let (front_face, normal) = get_face_normal(ray, normal);
                 return Some(HitRecord {
                     point,
                     normal,
@@ -60,6 +61,7 @@ impl<M: Material> Hittable for MovingSphere<M> {
                     u,
                     v,
                     material: self.material.as_ref(),
+                    front_face,
                 });
             }
 
@@ -68,6 +70,7 @@ impl<M: Material> Hittable for MovingSphere<M> {
                 let point = ray.at(t);
                 let normal = (point - center) / self.radius;
                 let (u, v) = get_sphere_uv(&normal);
+                let (front_face, normal) = get_face_normal(ray, normal);
                 return Some(HitRecord {
                     point,
                     normal,
@@ -75,6 +78,7 @@ impl<M: Material> Hittable for MovingSphere<M> {
                     u,
                     v,
                     material: self.material.as_ref(),
+                    front_face,
                 });
             }
         }

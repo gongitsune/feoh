@@ -3,6 +3,7 @@ use std::sync::Arc;
 use crate::{
     hittable::{
         boxtype::BoxType,
+        flip_face::FlipFace,
         hittable_list::HittableList,
         moving_sphere::MovingSphere,
         rect::{AARect, Plane},
@@ -89,12 +90,8 @@ pub fn cornell_box() -> HittableList {
 
     world.push(AARect::new(Plane::YZ, (0., 555.), (0., 555.), 555., green));
     world.push(AARect::new(Plane::YZ, (0., 555.), (0., 555.), 0., red));
-    world.push(AARect::new(
-        Plane::XZ,
-        (213., 343.),
-        (227., 332.),
-        554.,
-        light,
+    world.push(FlipFace::new(
+        AARect::new(Plane::XZ, (213., 343.), (227., 332.), 554., light).into(),
     ));
     world.push(AARect::new(
         Plane::XZ,

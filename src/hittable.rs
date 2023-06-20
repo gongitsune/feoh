@@ -1,6 +1,7 @@
 pub mod aabb;
 pub mod boxtype;
 pub mod bvh;
+pub mod flip_face;
 pub mod hittable_list;
 pub mod moving_sphere;
 pub mod rect;
@@ -18,6 +19,7 @@ pub struct HitRecord<'a> {
     pub u: f32,
     pub v: f32,
     pub material: &'a dyn Material,
+    pub front_face: bool,
 }
 
 pub trait Hittable: Sync + Send {
@@ -25,11 +27,14 @@ pub trait Hittable: Sync + Send {
     fn bounding_box(&self, time: (f32, f32)) -> Option<AABB>;
 }
 
-pub fn get_face_normal(ray: &Ray, outward_normal: Vec3A) -> Vec3A {
+pub fn get_face_normal(ray: &Ray, outward_normal: Vec3A) -> (bool, Vec3A) {
     let front_face = ray.direction.dot(outward_normal) < 0.;
-    if front_face {
-        outward_normal
-    } else {
-        -outward_normal
-    }
+    (
+        front_face,
+        if front_face {
+            outward_normal
+        } else {
+            -outward_normal
+        },
+    )
 }

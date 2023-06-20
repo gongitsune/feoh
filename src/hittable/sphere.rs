@@ -43,13 +43,16 @@ impl<M: Material> Hittable for Sphere<M> {
                 let point = ray.at(t);
                 let normal = (point - self.center) / self.radius;
                 let (u, v) = get_sphere_uv(&normal);
+
+                let (front_face, normal) = get_face_normal(ray, normal);
                 return Some(HitRecord {
                     point,
-                    normal: get_face_normal(ray, normal),
+                    normal,
                     t,
                     u,
                     v,
                     material: self.material.as_ref(),
+                    front_face,
                 });
             }
             let t = (-b + sqrt_discriminant) / a;
@@ -57,13 +60,15 @@ impl<M: Material> Hittable for Sphere<M> {
                 let point = ray.at(t);
                 let normal = (point - self.center) / self.radius;
                 let (u, v) = get_sphere_uv(&normal);
+                let (front_face, normal) = get_face_normal(ray, normal);
                 return Some(HitRecord {
                     point,
-                    normal: get_face_normal(ray, normal),
+                    normal,
                     t,
                     u,
                     v,
                     material: self.material.as_ref(),
+                    front_face,
                 });
             }
         }

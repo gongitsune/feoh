@@ -31,7 +31,11 @@ impl<T: Texture> Material for DiffuseLight<T> {
         None
     }
 
-    fn emitted(&self, u: f32, v: f32, p: &Vec3A) -> Vec3A {
-        self.emit.value(u, v, p)
+    fn emitted(&self, _ray: &Ray, hit: &HitRecord) -> Vec3A {
+        if hit.front_face {
+            self.emit.value(hit.u, hit.v, &hit.point)
+        } else {
+            Vec3A::ZERO
+        }
     }
 }

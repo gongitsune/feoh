@@ -13,7 +13,7 @@ pub trait Material: Sync + Send {
     fn scattering_pdf(&self, _ray: &Ray, _hit: &HitRecord, _scatterd: &Ray) -> f32 {
         0.
     }
-    fn emitted(&self, _u: f32, _v: f32, _p: &Vec3A) -> Vec3A {
+    fn emitted(&self, _ray: &Ray, _hit: &HitRecord) -> Vec3A {
         Vec3A::ZERO
     }
 }

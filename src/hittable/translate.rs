@@ -23,7 +23,7 @@ impl<H: Hittable + Send> Hittable for Translate<H> {
         let moved_ray = Ray::new(ray.origin - self.offset, ray.direction, ray.time);
         if let Some(mut hit) = self.hittable.hit(&moved_ray, t_min, t_max) {
             hit.point += self.offset;
-            hit.normal = get_face_normal(&moved_ray, hit.normal);
+            (hit.front_face, hit.normal) = get_face_normal(&moved_ray, hit.normal);
 
             Some(hit)
         } else {

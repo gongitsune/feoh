@@ -11,7 +11,7 @@ fn main() -> Result<()> {
         .open(Path::new("image.ppm"))?;
     let mut writer = BufWriter::new(file);
 
-    draw(600, 600, 100, 50, &mut writer)?;
+    draw(600, 600, 10, 50, &mut writer)?;
 
     Ok(())
 }

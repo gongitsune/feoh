@@ -50,13 +50,15 @@ impl<M: Material> Hittable for AARect<M> {
                 let point = ray.at(t);
                 let mut normal = Vec3A::ZERO;
                 normal[k_axis] = 1.0;
+                let (front_face, normal) = get_face_normal(ray, normal);
                 Some(HitRecord {
                     t,
                     u,
                     v,
                     point,
-                    normal: get_face_normal(ray, normal),
+                    normal,
                     material: self.material.as_ref(),
+                    front_face,
                 })
             }
         }

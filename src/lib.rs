@@ -1,3 +1,4 @@
+#![feature(core_intrinsics)]
 use crate::camera::Camera;
 use anyhow::Result;
 use glam::Vec3A;
@@ -9,6 +10,7 @@ use rayon::prelude::{IndexedParallelIterator, IntoParallelIterator, ParallelIter
 use scene::cornell_box;
 use std::{
     f32::INFINITY,
+    intrinsics::fabsf32,
     io::{BufWriter, Write},
 };
 
@@ -35,15 +37,37 @@ fn ray_color<H: Hittable>(
     }
 
     if let Some(hit) = world.hit(ray, 0.001, INFINITY) {
-        let emitted = hit.material.emitted(hit.u, hit.v, &hit.point);
-        if let Some((scattered, albedo, pdf)) = hit.material.scatter(ray, &hit, rng) {
+        let emitted = hit.material.emitted(ray, &hit);
+        if let Some((_, albedo, _)) = hit.material.scatter(ray, &hit, rng) {
+            let on_light = Vec3A::new(
+                rng.gen_range(213.0..343.0),
+                554.,
+                rng.gen_range(227.0..332.0),
+            );
+            let to_light = on_light - hit.point;
+            let distance_squared = to_light.length_squared();
+            let to_light = to_light.normalize();
+            if to_light.dot(hit.normal) < 0. {
+                return emitted;
+            }
+
+            let light_area = (343. - 213.) * (332. - 227.);
+            let light_cosine = unsafe { fabsf32(to_light.y) };
+            if light_cosine < 0.000001 {
+                return emitted;
+            }
+
+            let pdf = distance_squared / (light_cosine * light_area);
+            let scattered = Ray::new(hit.point, to_light, ray.time);
             let color = ray_color(&scattered, background, world, depth - 1, rng);
             let scatterd_pdf = hit.material.scattering_pdf(ray, &hit, &scattered);
-            Vec3A::new(
-                emitted.x + albedo.x * scatterd_pdf * color.x / pdf,
-                emitted.y + albedo.y * scatterd_pdf * color.y / pdf,
-                emitted.z + albedo.z * scatterd_pdf * color.z / pdf,
-            )
+
+            emitted
+                + Vec3A::new(
+                    albedo.x * scatterd_pdf * color.x / pdf,
+                    albedo.y * scatterd_pdf * color.y / pdf,
+                    albedo.z * scatterd_pdf * color.z / pdf,
+                )
         } else {
             emitted
         }
